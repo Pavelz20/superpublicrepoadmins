@@ -196,7 +196,7 @@ proxy = http://proxy.tech.skills:3128
 3. На **MPLS-GW-CORE** установите приветствие "! REASKILLS 2026 !" при входе в консоль tty.
     * (config) banner motd ! REASKILLS 2026 !
 
-Полезное по разделу :
+1. Полезное по разделу :
     * # show users localdb - пользаков посмотреть на роутере
     * Как посмотерть пароли для пользователей? 
     * # show running-config
