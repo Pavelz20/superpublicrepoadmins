@@ -174,7 +174,7 @@ proxy = http://proxy.tech.skills:3128
         * (config-user) deactivate
     * Обеспечьте хранение всех паролей в защищенном виде.
         * (config) service password-encryption
-    * Для доступа в Интернет настройте получение адреса по DHCP на **MPLS-GW-CORE**.
+    * Для доступа в Интернет настройте получение адреса по DHCP на **MPLS-GW-CORE**. (хз на скольковерно сделано, не вижу смысла в задании)
         *  (config) dhcp-profile 0
         *  (config-dhcp) server 192.168.122.1
         *  (config-dhcp) mode relay
@@ -196,7 +196,7 @@ proxy = http://proxy.tech.skills:3128
 3. На **MPLS-GW-CORE** установите приветствие "! REASKILLS 2026 !" при входе в консоль tty.
     * (config) banner motd ! REASKILLS 2026 !
 
-1. Полезное по разделу :
+4. Полезное по разделу :
     * \# show users localdb - пользаков посмотреть на роутере
     * Как посмотерть пароли для пользователей? 
     * \# show running-config
