@@ -242,6 +242,7 @@ proxy = http://proxy.tech.skills:3128
                 up ip route add 192.168.4.0/24 via 192.168.122.2
                 up ip route add 192.168.5.0/24 via 192.168.122.2
                 up ip route add 192.168.6.0/24 via 192.168.122.2
+        ```
         * чтобы можно было общаться с интернетом из офисов надо натсроить nat на core
             * (config) ip nat pool POOL 192.168.1.0-192.168.6.255
             * (config) ip nat source dynamic inside-to-outside pool POOL overload interface ge2
