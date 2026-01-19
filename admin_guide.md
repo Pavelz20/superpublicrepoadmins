@@ -142,8 +142,36 @@ proxy = http://proxy.tech.skills:3128
 
 3. На сервере **CR-SRV** реализуйте централизованный сбор журналов. 
     * Журналы необходимо собирать с устройств **CR-RTR** и **BR-RTR** и помещать их в директорию **/opt/logs/\<hostname\>.log**
-    * Реализуйте ротацию логов: при достижении объёма в 10МБ журнал следует сжимать файл журнала. Выполнять ротацию следует раз в минуту. 
+        * sudo apt install rsyslog
+        * sudo mkdir -p /opt/logs
+        * 
+        ```
+        В конец /etc/rsyslog.conf
+        $template PerHostLogs,"/opt/logs/%HOSTNAME%.log"
+        *.* ?PerHostLogs
+        & ~
 
+        Расскоментить две строки под provides UDP syslog recetion
+        ```
+        * sudo systemctl restart rsyslog
+        * (config) rsyslog host 192.168.2.100 (на обоих роутерах)
+
+    * Реализуйте ротацию логов: при достижении объёма в 10МБ журнал следует сжимать файл журнала. Выполнять ротацию следует раз в минуту.
+        * В  /etc/logrotate.d/central-logs 
+        ```
+        /opt/logs/*.log {
+            size 10M
+            rotate 5
+            compress
+            missingok
+            notifempty
+            copytruncate
+        }
+        ```
+        * Из-под рута crontab -e и написать  * * * * * /usr/sbin/logrotate /etc/logrotate.d/central-logs
+        * sudo systemctl restart rsyslog
+        * Проверить, что логи появлисть так ls -lh /opt/logs
+        * Проверить ротируется ли, когда объем больше 10МБs
 4. На **CR-SRV** разверните TFTP-сервер для создания резервных копий конфигураций маршрутизаторов. 
     * В качестве каталога используйте **/opt/configs**. 
     * Обеспечьте возможность резервного копирования конфигураций всех маршрутизаторов на сервер **CR-SRV**. Убедитесь, что на момент проверки присутствует хотя-бы одна резервная копия конфигурации. 
