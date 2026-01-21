@@ -94,7 +94,7 @@ proxy = http://proxy.tech.skills:3128
 
 #### Настройка базовых сервисов
 
-1. Реализуйте центр сертификации предприятия на сервере **CR-SRV**. 
+1. Реализуйте центр сертификации предприятия на сервере **CR-SRV** (Сделано не до конца). 
     * Используйте **/etc/ca** в качестве корневого каталога для центра сертификации. 
         * sudo apt-get install openssl
         * sudo mkdir -p /etc/ca/{certs,crl,newcerts,private}
@@ -111,7 +111,9 @@ proxy = http://proxy.tech.skills:3128
         * При создании самоподписанного серта СА указать при запросе Common Name REA2026-CA
     * Все устройства должны доверять данному центру сертификации на уровне системы, для работы утилит `curl` и `wget`. На клиентских ПК дополнительно необходимо обеспечить доверие к сертификату браузера firefox и почтового клиент thunderbird, для всех пользователей. 
         * Для доверия на системной уровне (curl wget) (на всех устройствах, хз насчет out устройств):
-            * sudo cp /etc/ca/certs/ca.cert.pem /usr/local/share/ca-certificates/REA2026-CA.crt (для cr-srv, на другие надо перекинуть серт через scp)
+            * sudo cp /etc/ca/certs/ca.cert.pem /usr/local/share/ca-certificates/REA2026-CA.crt (для cr-srv, на другие надо перекинуть серт через scp) 
+                * scp /etc/ca/certs/ca.cert.pem administrator@<ip>:~/REA2026-CA.crt
+                * на хосте сделать sudo cp ~/REA2026-CA.crt /usr/local/share/ca-certificates/REA2026-CA.crt
             * sudo update-ca-certificates
         * Доверие в браузере и почте: firefox -> Настройки -> Сертификаты (в поиске) -> Просмотр сертификатов(Управление сертификатами) -> импортировать и выбираем заренее уже перекинутый на тачку ca.cert.pem
         * И так для каждого пользака надо сделать, но можно автоматизировать(не проверял)
@@ -126,21 +128,28 @@ proxy = http://proxy.tech.skills:3128
                 certutil -A -n "REA2026-CA" -t "CT,," -d sql:"$profile" -i /usr/local/share/ca-certificates/REA2026-CA.crt
             done
             ```
+            * Или на каждом хосте в /usr/local/share/ca-certificates/mozila/REA2026-CA.crt и /usr/local/share/ca-certificates/thunderbird/REA2026-CA.crt  закинуть (надо проверить, но вроде Никита проверял и работало)
     * Все сервисы, предусматривающие доступ через web браузер, должны быть защищены с использованием сертификатов от данного центра сертификации (исключением является ALD Pro, веб интерфейс ALD Pro защищать сертификатом не обязательно).
         * Тут для сервисов надо выпускать сертификаты, которые должны быть подписаны нашим СА.
         * openssl genpkey -algorithm RSA -out myservice.key.pem -pkeyopt rsa_keygen_bits:2048 - генерим ключ на клиенте, где сервис, которым будем подписывать запрос на серт 
         * openssl req -new -key myservice.key.pem -out myservice.csr.pem -subj "/CN=имя_сервиса" - делаем запрос на серт CN - fqdn по которому должен быть доступен сервис
         * Теперь сгенерированный запрос-файл (myservice.csr.pem) надо оправить на тачку с CA (CR-SRV) например через scp
-        * В ca выпустить серт для сервиса поего запросу sudo openssl ca -config /etc/ca/openssl.cnf -in myservice.csr.pem -out myservice.crt.pem -extensions server_cert
+        * В ca выпустить серт для сервиса по его запросу sudo openssl ca -config /etc/ca/openssl.cnf -in myservice.csr.pem -out myservice.crt.pem -extensions server_cert
         * Теперь надо оправить сгенерированный серт обратно на тачку с сервисом и в настрйоках сервиса (в конфиграции) указывать этот серт и ключ, который уже есть на тачке.
         * Теперь допустим наш сервис - это nginx(т е веб сайт), то когда клиент откроет в бразуере наш сайт через https, ему придет этот серт на тачку, он такой о серт, а кто его подписал, смотрит в свои серты и обнарживат там серт центра ca(ca.cert.pem) и такой, ну я вижу, что серт сервиса подписан вот этим, а я ему доверяю и установится SSL соединение и сможем открыть ~порнуху~ котика
-2. На **CR-SRV** реализуйте почтовый сервер. 
+2. На **CR-SRV** реализуйте почтовый сервер (Сделано не до конца). 
     * Почтовый сервер должен обеспечивать возможность пересылки почты в домене **rea26.skills** и поддерживать аутентификацию при помощи доменных учетных записей. 
+        * sudo apt update
+        * sudo apt install postfix dovecot-imapd dovecot-ldap dovecot-lmtpd libsasl2-modules sasl2-bin ca-certificates mailutils
+        * /etc/postfix/main.cf
+        * /etc/dovecot/dovecot.conf 
+        * /etc/dovecot/dovecot-ldap.conf.ext
+        * рестартим все (не дописано)
     * Подключение к почтовому серверу должно быть защищено с использованием сертификатов CA предприятия. 
     * При регистрации пользователя в почтовом клиенте не должно запрашиваться никаких дополнительных параметров, кроме имени пользователя и пароля. 
     * Для проверки отправьте письмо с компьютера **CR-CLI**, от пользователя **Lori** пользователю **Eva** на компьютере **BR-CLI**.
 
-3. На сервере **CR-SRV** реализуйте централизованный сбор журналов. 
+3. На сервере **CR-SRV** реализуйте централизованный сбор журналов (Сделано полностью). 
     * Журналы необходимо собирать с устройств **CR-RTR** и **BR-RTR** и помещать их в директорию **/opt/logs/\<hostname\>.log**
         * sudo apt install rsyslog
         * sudo mkdir -p /opt/logs
@@ -172,9 +181,25 @@ proxy = http://proxy.tech.skills:3128
         * sudo systemctl restart rsyslog
         * Проверить, что логи появлисть так ls -lh /opt/logs
         * Проверить ротируется ли, когда объем больше 10МБs
-4. На **CR-SRV** разверните TFTP-сервер для создания резервных копий конфигураций маршрутизаторов. 
+4. На **CR-SRV** разверните TFTP-сервер для создания резервных копий конфигураций маршрутизаторов (Сделано полностью). 
     * В качестве каталога используйте **/opt/configs**. 
+        * sudo apt update
+        * sudo apt install tftpd-hpa
+        * sudo mkdir -p /opt/configs
+        * sudo chown tftp:tftp /opt/configs
+        * sudo chmod 777 /opt/configs
+        * в /etc/default/tftpd-hpa
+        ```
+            TFTP_USERNAME="tftp"
+            TFTP_DIRECTORY="/opt/configs"
+            TFTP_ADDRESS="0.0.0.0:69"
+            TFTP_OPTIONS="--secure --create"
+        ```
+        * sudo systemctl enable --now tftpd-hpa
+        * Проверка работы: apt install tftp на клинете допустим cr-cli
+        * tftp 192.168.2.100  -> put - загрузить на сервер, get - получить с сервера файл, verbose - расширенный вывод
     * Обеспечьте возможность резервного копирования конфигураций всех маршрутизаторов на сервер **CR-SRV**. Убедитесь, что на момент проверки присутствует хотя-бы одна резервная копия конфигурации. 
+        * Скопировать стартап конфиг можно так: # copy startup-config tftp tftp://192.168.2.100/
 
 5. Напишите скрипт вызова утилиты **snmpwalk** на **CR-SRV**
     * Скрипт должен быть доступен по имени `get_info` без явного указания пути и расширения, из любого места в системе.
