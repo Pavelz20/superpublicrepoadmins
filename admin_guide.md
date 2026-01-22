@@ -132,7 +132,7 @@ proxy = http://proxy.tech.skills:3128
     * Все сервисы, предусматривающие доступ через web браузер, должны быть защищены с использованием сертификатов от данного центра сертификации (исключением является ALD Pro, веб интерфейс ALD Pro защищать сертификатом не обязательно).
         * Тут для сервисов надо выпускать сертификаты, которые должны быть подписаны нашим СА.
         * openssl genpkey -algorithm RSA -out myservice.key.pem -pkeyopt rsa_keygen_bits:2048 - генерим ключ на клиенте, где сервис, которым будем подписывать запрос на серт 
-        * openssl req -new -key myservice.key.pem -out myservice.csr.pem -subj "/CN=имя_сервиса" - делаем запрос на серт CN - fqdn по которому должен быть доступен сервис
+        * openssl req -new -key myservice.key.pem -out myservice.csr.pem  - делаем запрос на серт CN - fqdn по которому должен быть доступен сервис
         * Теперь сгенерированный запрос-файл (myservice.csr.pem) надо оправить на тачку с CA (CR-SRV) например через scp
         * В ca выпустить серт для сервиса по его запросу sudo openssl ca -config /etc/ca/openssl.cnf -in myservice.csr.pem -out myservice.crt.pem -extensions server_cert
         * Теперь надо оправить сгенерированный серт обратно на тачку с сервисом и в настрйоках сервиса (в конфиграции) указывать этот серт и ключ, который уже есть на тачке.
@@ -227,6 +227,27 @@ proxy = http://proxy.tech.skills:3128
         * Section – misc
         * Description – Придумайте что-то смешное
         * Priority – optional
+    * решение:
+        * apt install -y build-essential libncurses5-dev
+        * wget 10.150.0.200/extra/reaskills-today.c
+        * gcc -O2 -o reaskills-today reaskills-today.c -lncurses (если не сработало, то gcc -O2 -o reaskills-today reaskills-today.c -lncursesw)
+        * mkdir -p reaskills-today_1.0-2026_amd64/DEBIAN reaskills-today_1.0-2026_amd64/usr/bin
+        * cp ./reaskills-today reaskills-today_1.0-2026_amd64/usr/bin/reaskills-today
+        * chmod 0755 reaskills-today_1.0-2026_amd64/usr/bin/reaskills-today
+        * nano reaskills-today_1.0-2026_amd64/DEBIAN/control
+        ```
+            Package: reaskills-today
+            Version: 1.0-2026
+            Section: misc
+            Priority: optional
+            Architecture: amd64
+            Maintainer: Ваше Имя <you@example.com>
+            Description: Этот пакет показывает сегодняшний день и напоминает, что завтра дедлайн.
+        ```
+        * dpkg-deb --build reaskills-today_1.0-2026_amd64
+        * dpkg -i reaskills-today_1.0-2026_amd64.deb
+        * which reaskills-today
+        * reaskills-today
  
 2. Подготовленный пакет опубликуйте в репозиторий на **ISP-SRV**.
     * Подготовьте репозиторий.
@@ -234,7 +255,65 @@ proxy = http://proxy.tech.skills:3128
     * При обновлении списка актуальных пакетов не должно возникать предупреждений безопасности. Использование дополнительный параметров конфигурации файла `sources.list` не допускается. 
     * Подключите репозиторий и установите пакет на **CR-CLI**. На **BR-CLI** подключите репозиторий, но пакет не устанавливайте. 
     * Репозиторий должен быть сконфигурирован в файле `/etc/apt/sources.list.d/rea2026.list`.
+    * решение:
+        * apt-get install -y reprepro gnu
+        * mkdir -p /srv/aptrepo/{conf,incoming} && chown -R $USER:$USER /srv/aptrepo
+        * 
+        ```
+            gpg --batch --gen-key <<'EOF'
+            Key-Type: RSA
+            Key-Length: 4096
+            Name-Real: REA26 Repo
+            Name-Email: repo@rea26.skills
+            Expire-Date: 0
+            %no-protection
+            %commit
+            EOF
+        ```
+        * gpg --list-keys --with-colons repo@rea26.skills | awk -F: '/^pub/ {print $5; exit}'
+        * KEYID="<ВАШ_KEYID>"
+        * 
+        ```
+            cat > /srv/aptrepo/conf/distributions <<EOF
+            Origin: rea26
+            Label: rea26
+            Suite: reaskills
+            Codename: reaskills
+            Components: reaskills-apps
+            Architectures: amd64
+            SignWith: ${KEYID}
+            EOF
+        ```
+        * reprepro -b /srv/aptrepo includedeb reaskills ./reaskills-today_1.0-2026_amd64.deb
+        * обновите nginx так (не забудьте серты)
+        ```
+            server {
+                listen 443 ssl;
+                server_name repo.rea26.skills;
 
+                ssl_certificate     /etc/ssl/certs/repo.rea26.skills.crt;
+                ssl_certificate_key /etc/ssl/private/repo.rea26.skills.key;
+
+                root /srv/aptrepo;
+
+                location / {
+                    autoindex on;
+                }
+            }
+        ```
+        * gpg --export -a repo@rea26.skills > /tmp/rea26-repo.asc
+        * Скопировать /tmp/rea26-repo.asc на cr-crl и br-cli
+        * на клиентах: sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/rea26-repo.gpg rea26-repo.asc
+        * sudo chmod 0644 /etc/apt/trusted.gpg.d/rea26-repo.gpg
+        * на клиентах: echo "deb https://repo.rea26.skills reaskills reaskills-apps" | sudo tee /etc/apt/sources.list.d/rea2026.list
+        * 
+        ```
+            sudo tee /etc/apt/apt.conf.d/99rea26-direct >/dev/null <<'EOF'
+            Acquire::http::Proxy::repo.rea26.skills "DIRECT";
+            Acquire::https::Proxy::repo.rea26.skills "DIRECT";
+            EOF
+        ```
+        * sudo apt-get update && apt-get install -y reaskills-today (скаичваем только на cr-cli)
 #### Настройка сервисов провайдера
 
 1. На сервере ISP-SRV разверните DNS сервер с использованием пакета **bind**. 
@@ -243,9 +322,20 @@ proxy = http://proxy.tech.skills:3128
 
 2. Сконфигурируйте веб-сайт провайдера.
     * При доступе по имени **isp.rea26.skills** сайт должен отдавать содержимое `<h1>Hello from office</h1>`, а при доступе по **isp.rea26.ru** -- `<h1>Hello from Internet</h1>`. 
+        * mkdir -p /var/www/isp.skills /var/www/isp.ru /var/www/error /var/www/isp.skills/secret
+        * echo "<h1>Hello from office</h1>" | tee /var/www/isp.skills/index.html && echo "<h1>Hello from Internet</h1>" |  tee /var/www/isp.ru/index.html && echo "<h1>Very secret place</h1>" | tee /var/www/isp.skills/secret/index.html
+        * cd /var/www/error && wget http://10.150.0.200/extra/404.html
+        * apt install nginx 
+        * htpasswd -cb /etc/nginx/.htpasswd mikhalych dr0wss@P
+        * Настроить конфиг в /etc/nginx/site-available/isp.conf, как в git/common/isp-nginx.conf
+        * ln -s /etc/nginx/site-available/isp.conf /etc/nginx/site-enabled/isp.conf && rm -rf /etc/nginx/site-enabled/default
+        * systemctl restart nginx (при перезагрузке может быть ошибка с сертами, их надо полодить, куда надо)
     * При попытке подключения по IP адресу пользователь должен получать ошибку 404 и видеть кастомную страницу. Страницу можно найти на files (**404.html**).
+        * учетно
     * Обеспечьте работу с использованием защищенной реализации протокола передачи гипертекста и перенаправления в случае использования его незащищенной реализации. 
+        * учетно
     * Эндпоинт **/secret** необходимо защитить при помощи базовой аутентификации. В качестве логина для входа используйте **mikhalych** с паролем **dr0wss@P**
+        * учетно
 
 
 -----
