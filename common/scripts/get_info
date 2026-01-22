@@ -15,7 +15,7 @@ fi
 DEVICE="$1"
 
 TS=$(date +"%Y%m%d_%H%M%S") 
-OUTFILE="${DEVICE}_${TS}_report.txt"
+OUTFILE="${DEVICE}${TS}_report.txt"
 
 SNMP_COMMUNITY="public"
 SNMP_VERSION="2c"
