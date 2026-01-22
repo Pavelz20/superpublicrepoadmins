@@ -1,0 +1,28 @@
+#!/bin/bash
+
+DUMP=0
+
+if [[ "$1" == "--dump" ]]; then
+    DUMP=1
+    shift
+fi
+
+if [[ $# -ne 1 ]]; then
+    echo "Usage: get_info [--dump] <device domain>"
+    exit 1
+fi
+
+DEVICE="$1"
+
+TS=$(date +"%Y%m%d_%H%M%S") 
+OUTFILE="${DEVICE}_${TS}_report.txt"
+
+SNMP_COMMUNITY="public"
+SNMP_VERSION="2c"
+
+if [[ "$DUMP" -eq 1 ]]; then
+    snmpwalk -v "$SNMP_VERSION" -c "$SNMP_COMMUNITY" "$DEVICE" > "$OUTFILE"
+    echo "Write to $OUTFILE"
+else
+    snmpwalk -v "$SNMP_VERSION" -c "$SNMP_COMMUNITY" "$DEVICE"
+fi
