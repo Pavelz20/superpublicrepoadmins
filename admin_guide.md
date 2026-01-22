@@ -369,7 +369,7 @@ proxy = http://proxy.tech.skills:3128
         * (config) snmp-server user snmpuser group reaskills auth md5 snmppass priv aes snmppass
         * (config) snmp-server enable snmp
     * Обеспечьте наличие утилиты `snmpwalk` на **CR-SRV**.
-        * просто устновить
+        * Уже есть или apt install snmp
     * Полезное:
         * чтоб-то можно глянуть в \# show snmp *
         * ВАЖНО!!!! Чтобы security был 1 (профиль, который создали ранее, где все разрешено, потому что default блокает нужный порт)
