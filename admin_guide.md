@@ -348,15 +348,31 @@ proxy = http://proxy.tech.skills:3128
 
 #### Резервное копирование конфигурации, IP SLA и мониторинг
 
-1. Обеспечьте выгрузку резервной копии конфигурации каждого маршрутизатора на TFTP-сервер, который вы развернули ранее.
-2. Сконфигурируйте IP SLA на PE маршрутизаторах для проверки доступности **ISP-SRV** по ICMP.
+1. Обеспечьте выгрузку резервной копии конфигурации каждого маршрутизатора на TFTP-сервер, который вы развернули ранее (https://docs.ecorouter.ru/Руководство/07-Экспорт-и-импорт-конфигурации/#экспорт-конфигурации).
+2. Сконфигурируйте IP SLA на PE маршрутизаторах для проверки доступности **ISP-SRV** по ICMP (https://docs.ecorouter.ru/Руководство/13-IP-SLA/).
     * Назовите SLA профиль **reaskills**.
+        * (config) ip sla-profile reaskills
+        * (config-sla) icmp 192.168.122.103
+        * (config-sla) enable
     * SLA должен срабатывать при четырех потерянных пакетах.
+        * (config-sla) monitor packet-loss 4
     * Интервал отправки сообщений должен быть равен половине минуты.
-3. Обеспечьте доступ по протоколу SNMPv3 на каждый маршрутизатор с сервера **CR-SRV**.
+        * (config-sla) packet-frequency 30
+   * Полезное:
+        * \# show ip sla-profile reaskills
+        * \# show ip sla-profile summary
+3. Обеспечьте доступ по протоколу SNMPv3 на каждый маршрутизатор с сервера **CR-SRV** (https://docs.ecorouter.ru/Руководство/16-SNMP/06-SNMPv3) - ничего дельного нет.
     * В качестве имени группы используйте **reaskills**.
+        * (config) snmp-server view reaskills .1 included
+        * (config) snmp-server group reaskills v3 priv read reaskills write reaskills
     * В качестве имени пользователя и пароля используйте **snmpuser** и **snmppass** соответственно.
+        * (config) snmp-server user snmpuser group reaskills auth md5 snmppass priv aes snmppass
+        * (config) snmp-server enable snmp
     * Обеспечьте наличие утилиты `snmpwalk` на **CR-SRV**.
+        * просто устновить
+    * Полезное:
+        * чтоб-то можно глянуть в \# show snmp *
+        * ВАЖНО!!!! Чтобы security был 1 (профиль, который создали ранее, где все разрешено, потому что default блокает нужный порт)
 
 -----
 
