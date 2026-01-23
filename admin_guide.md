@@ -323,7 +323,7 @@ proxy = http://proxy.tech.skills:3128
 2. Сконфигурируйте веб-сайт провайдера.
     * При доступе по имени **isp.rea26.skills** сайт должен отдавать содержимое `<h1>Hello from office</h1>`, а при доступе по **isp.rea26.ru** -- `<h1>Hello from Internet</h1>`. 
         * mkdir -p /var/www/isp.skills /var/www/isp.ru /var/www/error /var/www/isp.skills/secret
-        * echo "<h1>Hello from office</h1>" | tee /var/www/isp.skills/index.html && echo "<h1>Hello from Internet</h1>" |  tee /var/www/isp.ru/index.html && echo "<h1>Very secret place</h1>" | tee /var/www/isp.skills/secret/index.html
+        * echo "\<\h1\>Hello from office\<\/\h1\>" | tee /var/www/isp.skills/index.html && echo "\<\h1\>Hello from Internet\<\/\h1\>" |  tee /var/www/isp.ru/index.html && echo "\<\h1\>Very secret place\<\/\h\1>" | tee /var/www/isp.skills/secret/index.html
         * cd /var/www/error && wget http://10.150.0.200/extra/404.html
         * apt install nginx 
         * htpasswd -cb /etc/nginx/.htpasswd mikhalych dr0wss@P
