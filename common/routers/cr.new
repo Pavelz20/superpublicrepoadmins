@@ -1,0 +1,99 @@
+ecorouter#show run 
+!
+no service password-encryption
+!
+hw mgmt ip 192.168.255.1/24
+!
+bgp extended-asn-cap 
+!
+ip vrf management
+!
+class-map default
+!
+security default
+!
+security none vrf management
+!
+mpls propagate-ttl
+mpls label mode per-prefix
+mpls exp stack-size all
+!
+ip domain-lookup
+!
+!
+ip pim register-rp-reachability
+!
+router ldp
+ targeted-peer ipv4 1.1.1.1
+  exit-targeted-peer-mode
+ targeted-peer ipv4 2.2.2.2
+  exit-targeted-peer-mode
+ transport-address ipv4 3.3.3.3
+!
+router isis 1
+ net 10.0000.0000.0003.00
+!
+ip route 0.0.0.0/0 192.168.122.1
+!
+line con 0
+line vty 0 39
+!
+port ge0
+ mtu 9728
+ service-instance 4ge4
+  encapsulation untagged
+!
+port ge1
+ mtu 9728
+ service-instance 4ge3
+  encapsulation untagged
+ service-instance 5ge1
+  encapsulation dot1q 120
+  rewrite pop 1
+ service-instance 6ge1
+  no encapsulation
+!
+port ge2
+ mtu 9728
+ service-instance 4ge1
+  encapsulation untagged
+!
+interface loopback.0
+ ip mtu 1500
+ ip address 3.3.3.3/32
+ ip router isis 1
+!
+interface 2ge1
+ ip mtu 1500
+ label-switching
+ connect port ge2 service-instance 4ge1
+ ip address 10.0.23.2/24
+ ip router isis 1
+ ldp enable ipv4
+!
+interface 5ge1
+ ip mtu 1500
+ connect port ge1 service-instance 5ge1
+ ip address 10.0.24.1/24
+ ip router isis 1
+!
+interface 6ge1
+ ip mtu 1500
+!
+vpls-instance INST 2
+ vpls-mtu 9710
+ vpls-type raw
+ member port ge0 service-instance 4ge4
+ member port ge1 service-instance 4ge3
+ signaling ldp
+  vpls-peer 1.1.1.1
+  exit-signaling
+!
+arp request-interval 1
+arp request-number 3
+arp expiration-period 5
+arp solicitation-rate 2
+arp ip-collision-time 8
+arp incomplete-time 60
+!
+end

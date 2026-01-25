@@ -1,0 +1,107 @@
+mpls-gw-core.rea26.ru#show run 
+!
+service password-encryption
+!
+hostname mpls-gw-core.rea26.ru
+!
+enable password 8 P@ssw0rd
+banner motd ! REASKILLS 2026 !
+!
+hw mgmt ip 192.168.255.1/24
+!
+snmp-server enable snmp 
+snmp-server view reaskills .1 included
+snmp-server group reaskills v3 priv read reaskills write reaskills
+!
+bgp extended-asn-cap 
+!
+ip vrf management
+!
+class-map default
+!
+security-profile 1
+!
+security 1
+!
+security none vrf management
+!
+dhcp-profile 0
+ mode relay
+ relay-agent transparent
+ information-option circuit-id Router: %{PORT}/ client: %{MAC}/%{SVLAN}.%{CVLAN}
+ information-option remote-id Router: %{HNAME}/%{VR}
+ server 192.168.122.1
+!
+mpls propagate-ttl
+mpls label mode per-prefix
+mpls exp stack-size all
+!
+ip domain-lookup
+!
+!
+ip pim register-rp-reachability
+!
+router ospf 1
+ ospf router-id 10.255.10.3
+ network 192.168.5.0 0.0.0.255 area 0.0.0.0
+ network 192.168.6.0 0.0.0.255 area 0.0.0.0
+ network 192.168.122.0 0.0.0.255 area 0.0.0.0
+ default-information originate
+!
+ip route 0.0.0.0/0 192.168.122.1
+!
+line con 0
+line vty 0 39
+!
+port ge0
+ mtu 9728
+ service-instance ge0/ge0
+  encapsulation untagged
+!
+port ge1
+ mtu 9728
+ service-instance ge1/ge1
+  encapsulation untagged
+!
+port ge2
+ mtu 9728
+ service-instance ge2/ge2
+  encapsulation untagged
+!
+interface ge1
+ ip mtu 1500
+ connect port ge1 service-instance ge1/ge1
+ ip nat inside
+ ip address 192.168.6.2/24
+!
+interface ge2
+ ip mtu 1500
+ connect port ge2 service-instance ge2/ge2
+ dhcp-profile 0
+ ip nat outside
+ ip address 192.168.122.2/24
+!
+interface ge0
+ ip mtu 1500
+ connect port ge0 service-instance ge0/ge0
+ ip nat inside
+ ip address 192.168.5.2/24
+!
+interface loopback0
+ ip mtu 1500
+ ip address 10.255.10.3/24
+!
+ip nat source static udp 192.168.2.50 53 192.168.122.2 53
+!
+ip nat pool POOL 192.168.1.0-192.168.6.255
+!
+ip nat source dynamic inside-to-outside pool POOL overload interface ge2
+!
+arp request-interval 1
+arp request-number 3
+arp expiration-period 5
+arp solicitation-rate 2
+arp ip-collision-time 8
+arp incomplete-time 60
+!
+end

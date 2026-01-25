@@ -1,0 +1,100 @@
+mpls-gw-cr.rea26.ru(config)#show run 
+!
+service password-encryption
+!
+hostname mpls-gw-cr.rea26.ru
+!
+enable password 8 P@ssw0rd
+banner motd ! REASKILLS 2026 !
+!
+hw mgmt ip 192.168.255.1/24
+!
+snmp-server enable snmp 
+snmp-server view reaskills .1 included
+snmp-server group reaskills v3 priv read reaskills write reaskills
+!
+bgp extended-asn-cap 
+!
+ip vrf management
+!
+class-map default
+!
+security-profile 1
+  rule 0 permit tcp 192.168.3.0/24 any eq 22
+  rule 1 deny tcp any any eq 22
+!
+security 1
+!
+security none vrf management
+!
+ip sla-profile reaskills
+ icmp 192.168.122.103
+ monitor packet-loss 4
+ packet-frequency 30
+ rtt-threshold 1000
+ enable
+!
+mpls propagate-ttl
+mpls label mode per-prefix
+mpls exp stack-size all
+!
+ip domain-lookup
+!
+!
+ip pim register-rp-reachability
+!
+router ospf 1
+ ospf router-id 10.255.10.1
+ network 192.168.2.0 0.0.0.255 area 0.0.0.0
+ network 192.168.4.0 0.0.0.255 area 0.0.0.0
+ network 192.168.6.0 0.0.0.255 area 0.0.0.0
+!
+line con 0
+line vty 0 39
+!
+rsyslog host 192.168.2.100
+!
+port ge0
+ mtu 9728
+ service-instance ge0/ge0
+  encapsulation untagged
+!
+port ge1
+ mtu 9728
+ service-instance ge1/ge1
+  encapsulation untagged
+!
+port ge2
+ mtu 9728
+ service-instance ge2/ge2
+  encapsulation untagged
+!
+interface ge0
+ ip mtu 1500
+ connect port ge0 service-instance ge0/ge0
+ ip address 192.168.2.1/24
+ ip ospf database-filter all out
+!
+interface ge1
+ ip mtu 1500
+ connect port ge1 service-instance ge1/ge1
+ ip address 192.168.4.1/24
+ ip ospf database-filter all out
+!
+interface ge2
+ ip mtu 1500
+ connect port ge2 service-instance ge2/ge2
+ ip address 192.168.6.1/24
+!
+interface loopback0
+ ip mtu 1500
+ ip address 10.255.10.1/24
+!
+arp request-interval 1
+arp request-number 3
+arp expiration-period 5
+arp solicitation-rate 2
+arp ip-collision-time 8
+arp incomplete-time 60
+!
+end
