@@ -2,7 +2,7 @@
 deb https://download.astralinux.ru/astra/frozen/1.8_x86-64/1.8.1/repository-main/ 1.8_x86-64 main contrib nonfree non-free-firmware
 deb https://download.astralinux.ru/astra/frozen/1.8_x86-64/1.8.1/repository-extended/ 1.8_x86-64 main contrib non-free non-free-firmware
 
-deb https://dl.astralinux.rg/aldpro/frozen/01/3.0.0 1.8_x86-64 main base 
+deb https://dl.astralinux.ru/aldpro/frozen/01/3.0.0 1.8_x86-64 main base 
 
 Для br-dc
 deb https://download.astralinux.ru/astra/frozen/1.7_x86-64/1.7.9/repository-main 1.7_x86-64 main non-free contrib
