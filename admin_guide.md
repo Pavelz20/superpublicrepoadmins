@@ -94,7 +94,7 @@ proxy = http://proxy.tech.skills:3128
 
 #### Настройка базовых сервисов
 
-1. Реализуйте центр сертификации предприятия на сервере **CR-SRV** (Сделано не до конца). 
+1. Реализуйте центр сертификации предприятия на сервере **CR-SRV** (**Сделано не до конца**). 
     * Используйте **/etc/ca** в качестве корневого каталога для центра сертификации. 
         * sudo apt-get install openssl
         * sudo mkdir -p /etc/ca/{certs,crl,newcerts,private}
@@ -109,7 +109,7 @@ proxy = http://proxy.tech.skills:3128
         * sudo openssl req -config openssl.cnf -key private/ca.key.pem -new -x509 -days 3650 -sha256 -extensions v3_ca -out certs/ca.cert.pem - создаем самыоподписанный серт СА
     * В качестве CN укажите **REA2026-CA**.
         * При создании самоподписанного серта СА указать при запросе Common Name REA2026-CA
-    * Все устройства должны доверять данному центру сертификации на уровне системы, для работы утилит `curl` и `wget`. На клиентских ПК дополнительно необходимо обеспечить доверие к сертификату браузера firefox и почтового клиент thunderbird, для всех пользователей. 
+    * Все устройства должны доверять данному центру сертификации на уровне системы, для работы утилит `curl` и `wget`. На клиентских ПК дополнительно необходимо обеспечить доверие к сертификату браузера firefox и почтового клиент thunderbird, для всех пользователей (Не разобрался, как сделать доверие браузеру и почтовому клиенту). 
         * Для доверия на системной уровне (curl wget) (на всех устройствах, хз насчет out устройств):
             * sudo cp /etc/ca/certs/ca.cert.pem /usr/local/share/ca-certificates/REA2026-CA.crt (для cr-srv, на другие надо перекинуть серт через scp) 
                 * scp /etc/ca/certs/ca.cert.pem administrator@<ip>:~/REA2026-CA.crt
@@ -137,7 +137,7 @@ proxy = http://proxy.tech.skills:3128
         * В ca выпустить серт для сервиса по его запросу sudo openssl ca -config /etc/ca/openssl.cnf -in myservice.csr.pem -out myservice.crt.pem -extensions server_cert
         * Теперь надо оправить сгенерированный серт обратно на тачку с сервисом и в настрйоках сервиса (в конфиграции) указывать этот серт и ключ, который уже есть на тачке.
         * Теперь допустим наш сервис - это nginx(т е веб сайт), то когда клиент откроет в бразуере наш сайт через https, ему придет этот серт на тачку, он такой о серт, а кто его подписал, смотрит в свои серты и обнарживат там серт центра ca(ca.cert.pem) и такой, ну я вижу, что серт сервиса подписан вот этим, а я ему доверяю и установится SSL соединение и сможем открыть ~порнуху~ котика
-2. На **CR-SRV** реализуйте почтовый сервер (Сделано не до конца). 
+2. На **CR-SRV** реализуйте почтовый сервер (**Не сделано**). 
     * Почтовый сервер должен обеспечивать возможность пересылки почты в домене **rea26.skills** и поддерживать аутентификацию при помощи доменных учетных записей. 
         * sudo apt update
         * sudo apt install postfix dovecot-imapd dovecot-ldap dovecot-lmtpd libsasl2-modules sasl2-bin ca-certificates mailutils
@@ -149,7 +149,7 @@ proxy = http://proxy.tech.skills:3128
     * При регистрации пользователя в почтовом клиенте не должно запрашиваться никаких дополнительных параметров, кроме имени пользователя и пароля. 
     * Для проверки отправьте письмо с компьютера **CR-CLI**, от пользователя **Lori** пользователю **Eva** на компьютере **BR-CLI**.
 
-3. На сервере **CR-SRV** реализуйте централизованный сбор журналов (Сделано полностью). 
+3. На сервере **CR-SRV** реализуйте централизованный сбор журналов (**Сделано полностью**). 
     * Журналы необходимо собирать с устройств **CR-RTR** и **BR-RTR** и помещать их в директорию **/opt/logs/\<hostname\>.log**
         * sudo apt install rsyslog
         * sudo mkdir -p /opt/logs
@@ -180,8 +180,8 @@ proxy = http://proxy.tech.skills:3128
         * Из-под рута crontab -e и написать  * * * * * /usr/sbin/logrotate /etc/logrotate.d/central-logs
         * sudo systemctl restart rsyslog
         * Проверить, что логи появлисть так ls -lh /opt/logs
-        * Проверить ротируется ли, когда объем больше 10МБs
-4. На **CR-SRV** разверните TFTP-сервер для создания резервных копий конфигураций маршрутизаторов (Сделано полностью). 
+        * Проверить ротируется ли, когда объем больше 10МБ
+4. На **CR-SRV** разверните TFTP-сервер для создания резервных копий конфигураций маршрутизаторов (**Сделано полностью**). 
     * В качестве каталога используйте **/opt/configs**. 
         * sudo apt update
         * sudo apt install tftpd-hpa
@@ -193,7 +193,7 @@ proxy = http://proxy.tech.skills:3128
             TFTP_USERNAME="tftp"
             TFTP_DIRECTORY="/opt/configs"
             TFTP_ADDRESS="0.0.0.0:69"
-            TFTP_OPTIONS="--secure --create"
+            TFTP_OPTIONS="--secure --create"s
         ```
         * sudo systemctl enable --now tftpd-hpa
         * Проверка работы: apt install tftp на клинете допустим cr-cli
@@ -201,7 +201,7 @@ proxy = http://proxy.tech.skills:3128
     * Обеспечьте возможность резервного копирования конфигураций всех маршрутизаторов на сервер **CR-SRV**. Убедитесь, что на момент проверки присутствует хотя-бы одна резервная копия конфигурации. 
         * Скопировать стартап конфиг можно так: # copy startup-config tftp tftp://192.168.2.100/
 
-5. Напишите скрипт вызова утилиты **snmpwalk** на **CR-SRV**
+5. Напишите скрипт вызова утилиты **snmpwalk** на **CR-SRV** (**Cделано полностью**)
     * Скрипт должен быть доступен по имени `get_info` без явного указания пути и расширения, из любого места в системе.
         * sudo apt install snmpd 
         * Кладем в /usr/local/bin/ файл git/common/scripts/get_info
@@ -215,7 +215,7 @@ proxy = http://proxy.tech.skills:3128
 
 #### Сборка пакетов и публикация на сервере репозиториев
 
-1. Выполните сборку бинарного приложения. 
+1. Выполните сборку бинарного приложения (**Сделано полностью**). 
     * Приложение необходимо упаковать в deb пакет. 
     * Deb пакет должен называться `reaskills-today` и выполнятся при помощи одноименной команды. 
     * Приложение должно устанавливаться в директорию **/usr/bin/**.  
@@ -227,7 +227,7 @@ proxy = http://proxy.tech.skills:3128
         * Section – misc
         * Description – Придумайте что-то смешное
         * Priority – optional
-    * решение:
+    * Решение:
         * apt install -y build-essential libncurses5-dev
         * wget 10.150.0.200/extra/reaskills-today.c
         * gcc -O2 -o reaskills-today reaskills-today.c -lncurses (если не сработало, то gcc -O2 -o reaskills-today reaskills-today.c -lncursesw)
@@ -249,13 +249,13 @@ proxy = http://proxy.tech.skills:3128
         * which reaskills-today
         * reaskills-today
  
-2. Подготовленный пакет опубликуйте в репозиторий на **ISP-SRV**.
+2. Подготовленный пакет опубликуйте в репозиторий на **ISP-SRV** (**Сделано полностью**).
     * Подготовьте репозиторий.
     * Репозиторий должен подключатся по записи `deb https://repo.rea26.skills reaskills reaskills-apps`. 
     * При обновлении списка актуальных пакетов не должно возникать предупреждений безопасности. Использование дополнительный параметров конфигурации файла `sources.list` не допускается. 
     * Подключите репозиторий и установите пакет на **CR-CLI**. На **BR-CLI** подключите репозиторий, но пакет не устанавливайте. 
     * Репозиторий должен быть сконфигурирован в файле `/etc/apt/sources.list.d/rea2026.list`.
-    * решение:
+    * Решение:
         * apt-get install -y reprepro gnu
         * mkdir -p /srv/aptrepo/{conf,incoming} && chown -R $USER:$USER /srv/aptrepo
         * 
@@ -316,20 +316,26 @@ proxy = http://proxy.tech.skills:3128
         * sudo apt-get update && apt-get install -y reaskills-today (скаичваем только на cr-cli)
 #### Настройка сервисов провайдера
 
-1. На сервере ISP-SRV разверните DNS сервер с использованием пакета **bind**. 
+1. На сервере ISP-SRV разверните DNS сервер с использованием пакета **bind** (**Сделано полностью**). 
     * Обеспечьте делегацию поддомена **rea26.skills** на **CR-DC**. 
     * Сервер должен управлять зоной **rea26.ru**.
+    * Решение:
+        * apt install bind9 bind9-utils 
+        * Конф файлы в git/common/isp/bind-*
+        * Не забыть поставить resolv.conf 127.0.0.1 и поменять dhcp на static конфиг в networking
+        * Не замыть сделать проброс портов (config) ip nat source static udp 192.168.2.50 53 192.168.122.2 53
+        * не забыть рестартануть bind9
 
-2. Сконфигурируйте веб-сайт провайдера.
+2. Сконфигурируйте веб-сайт провайдера (**Cделано полностью**).
     * При доступе по имени **isp.rea26.skills** сайт должен отдавать содержимое `<h1>Hello from office</h1>`, а при доступе по **isp.rea26.ru** -- `<h1>Hello from Internet</h1>`. 
-        * mkdir -p /var/www/isp.skills /var/www/isp.ru /var/www/error /var/www/isp.skills/secret
-        * echo "`<h1>Hello from office</h1>`" | tee /var/www/isp.skills/index.html && echo "`<h1>Hello from Internet</h1>`" |  tee /var/www/isp.ru/index.html && echo "`<h1>Very secret place</h1>`" | tee /var/www/isp.skills/secret/index.html
+        * mkdir -p /var/www/isp.skills /var/www/isp.ru /var/www/error
+        * echo "`<h1>Hello from office</h1>`" | tee /var/www/isp.skills/index.html && echo "`<h1>Hello from Internet</h1>`" |  tee /var/www/isp.ru/index.html
         * cd /var/www/error && wget http://10.150.0.200/extra/404.html
         * apt install nginx 
         * htpasswd -cb /etc/nginx/.htpasswd mikhalych dr0wss@P
-        * Настроить конфиг в /etc/nginx/site-available/isp.conf, как в git/common/isp-nginx.conf
-        * ln -s /etc/nginx/site-available/isp.conf /etc/nginx/site-enabled/isp.conf && rm -rf /etc/nginx/site-enabled/default
-        * systemctl restart nginx (при перезагрузке может быть ошибка с сертами, их надо полодить, куда надо)
+        * Настроить конфиг в /etc/nginx/site-available/isp.conf, как в git/common/isp/nginx-isp-nginx.conf
+        * ln -s /etc/nginx/site-available/isp.conf /etc/nginx/site-enabled/isp.conf && rm -rf /etc/nginx/site-enabled/default /etc/nginx/site-available/html
+        * systemctl restart nginx (при перезагрузке может быть ошибка с сертами, их надо положить, куда надо(/usr/local/share/ca-certificates/mozila))
     * При попытке подключения по IP адресу пользователь должен получать ошибку 404 и видеть кастомную страницу. Страницу можно найти на files (**404.html**).
         * учетно
     * Обеспечьте работу с использованием защищенной реализации протокола передачи гипертекста и перенаправления в случае использования его незащищенной реализации. 
@@ -355,7 +361,7 @@ proxy = http://proxy.tech.skills:3128
     * Защитите доступ к привилегированному режиму при помощи пароля **P@ssw0rd**.
         * (config) enable password P@ssw0rd
     * Деактивируйте встроенную учетную запись администратора.
-        * (config) username adsmin
+        * (config) username admin
         * (config-user) deactivate
     * Обеспечьте хранение всех паролей в защищенном виде.
         * (config) service password-encryption

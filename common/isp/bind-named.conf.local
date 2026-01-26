@@ -1,0 +1,10 @@
+zone "rea26.ru" { 
+    type master;
+    file "/etc/bind/db.rea26.ru";
+};
+
+zone "rea26.skills" {
+    type forward;
+    forward only;
+    forwarders {192.168.122.2; };
+};
