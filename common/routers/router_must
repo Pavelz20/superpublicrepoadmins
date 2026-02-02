@@ -1,0 +1,20 @@
+hostname mpls-gw-core.rea26.ru
+
+line con 0
+ exec-timeout 0 0
+line vty 0 871
+ exec-timeout 0 0
+exit
+
+service password-encryption
+banner motd ! REASKILLS 2026 !
+enable password P@ssw0rd
+
+username adminer
+role admin
+password P@ssw0rd
+username admin
+deactivate
+
+
+# Поменять только hostname 
