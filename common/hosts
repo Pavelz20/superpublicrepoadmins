@@ -1,0 +1,15 @@
+
+
+192.168.1.10 cr-dc.rea26.skills cr-dc ald.rea26.skills ald
+192.168.1.20 cr-srv.rea26.skills cr-srv
+192.168.1.30 win-ad.tech.skills win-ad
+192.168.1.50 cr-cli.rea26.skills cr-cli
+192.168.1.60 br-cli.rea26.skills br-cli
+192.168.1.70 br-srv3.rea26.skills br-srv3
+192.168.1.80 br-srv2.rea26.skills br-srv2
+192.168.1.90 br-srv1.rea26.skills br-srv1
+192.168.1.100 br-dc.rea26.skills br-dc
+192.168.122.103 isp-srv.rea26.skills isp-srv repo.rea26.skills repo isp.rea26.skills isp isp.rea26.ru 
+192.168.122.250 out-cli.rea26.skills out-cli
+
+

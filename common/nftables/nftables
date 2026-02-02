@@ -1,3 +1,7 @@
+#включить forwarding в /etc/sysctl.conf
+# sudo sysctl -p
+
+
 #!/usr/sbin/nft -f
 flush ruleset
 
