@@ -4,13 +4,13 @@ deb https://download.astralinux.ru/astra/frozen/1.8_x86-64/1.8.1/repository-exte
 
 deb https://dl.astralinux.ru/aldpro/frozen/01/3.0.0 1.8_x86-64 main base 
 
-Для br-dc
-deb https://download.astralinux.ru/astra/frozen/1.7_x86-64/1.7.9/repository-main 1.7_x86-64 main non-free contrib
-deb https://download.astralinux.ru/astra/frozen/1.7_x86-64/1.7.9/repository-update 1.7_x86-64 main non-free contrib
-
+Для cr-srv
+deb https://download.astralinux.ru/astra/frozen/1.7_x86-64/1.7.7/repository-main 1.7_x86-64 main non-free contrib
+deb https://download.astralinux.ru/astra/frozen/1.7_x86-64/1.7.7/repository-update 1.7_x86-64 main non-free contrib
+deb https://download.astralinux.ru/astra/frozen/1.7_x86-64/1.7.7/repository-extended/ 1.8_x86-64 main non-free contrib
 deb https://dl.astralinux.ru/aldpro/frozen/01/3.0.0/ 1.7_x86-64 main base
 
-Для cr-dc 
+Для cr-dc br-dc
 deb http://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.7/repository-main/1.7_x86-64 main contrib non-free 
 deb http://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.7/repository-update/ 1.7_x86-64 main contrib non-free 
 
