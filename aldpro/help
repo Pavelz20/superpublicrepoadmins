@@ -1,1 +1,4 @@
-sudo aldpro-roles --iud --action install 
+sudo aldpro-roles --iud --action install
+
+#перенос домена
+ 
