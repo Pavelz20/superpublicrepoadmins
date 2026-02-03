@@ -1,0 +1,30 @@
+1) Настройка сети на br-srv{1,2,3}
+2) astra-modeswitch set 2
+3) /etc/sysctl.d/kubernetes.conf
+net.ipv4.ip_forward=1
+net.ipv4.ip_local_reserved_ports=30000-32767
+net.bridge.bridge-nf-call-iptables=1
+net.bridge.bridge-nf-call-arptables=1
+net.bridge.bridge-nf-call-ip6tables=1
+net.ipv4.conf.default.rp_filter = 0
+net.ipv4.conf.all.rp_filter = 0
+
+sysctl -p
+4) установка snap: https://wiki.astralinux.ru/pages/viewpage.action?pageId=187797332
+5) wget 10.150.0.200/ITNSA/extra/core20-snap.zip 
+   wget 10.150.0.200/ITNSA/extra/core-snap.zip 
+   wget 10.150.0.200/ITNSA/extra/mikrok8s-snap.zip 
+6) 
+   unzip mikrok8s-snap.zip
+   unzip core20-snap.zip
+   unzip core-snap.zip
+
+7)  sudo snap install core_*.snap --dangerous
+    sudo snap install core20_*.snap --dangerous
+    sudo snap install mikrok8s_*.snap --classic --dangerous
+8) sudo microk8s status --wait-ready -команда для провекри работы кубера
+
+9) microk8s add-node - на srv1 /master 
+10) microk8s join 10.0.1.1:25000/abcdef1234567890 - типа такой надо написать для вывода предыдущей команды на каждом worker
+11) microk8s kubectl get nodes  - на мастере   
+
