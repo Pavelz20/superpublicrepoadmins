@@ -7,6 +7,9 @@ Audit NTLM Incoming NTLM Tra... - Disable
 Audit NTLM authetication - Disable
 Incoming NTLM traffic - Allow All 
 
+поправить /etc/bind/ipa... 
+dns validation
+
 #превоначлаьная настройка
 ip + gw
 hosts
