@@ -11,7 +11,9 @@ Incoming NTLM traffic - Allow All
 dns validation
 
 #превоначлаьная настройка
+astra_modeswitch set 2 (на dc)
 ip + gw
+hostname
 hosts
 resolve.conf (при вводе в домен или превращении в резервыный контроллер должен быть ip cr-dc)
 90-proxy
