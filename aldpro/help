@@ -1,4 +1,8 @@
 sudo aldpro-roles --iud --action install
 
-#перенос домена
- 
+LDAP server channel binding token... - Never
+LDAP server signing requirements - None
+LDAP server signing requirements Enf... - Disable
+Audit NTLM Incoming NTLM Tra... - Disable
+Audit NTLM authetication - Disable
+Incoming NTLM traffic - Allow All 
