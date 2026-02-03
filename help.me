@@ -3,8 +3,14 @@
 3) Занести на устройства (или только на cli) dns роутеров в ru зоне, идея создать отедльную зону в ald.pro
 4) Поправить делегацию rea26.skills на ip cr-dc
 5) Исправить конфиг nginx и добавить серты   
-6) Попробовать сделать ssh для роутеров, указав сетку после any или backup убрать вообще security-profile + для snmp
-
+6) ssh к роутерам: делаем none профиль на всех роутераха + на out-cli пишем в /etc/nfrables.conf 
+table inet filter {
+chain output {
+ip daddr 10.0.24.1 tcp dport 22 drop # cr-cli
+ip daddr 10.0.12.1 tcp dport 22 drop # br-cli
+accept 
+}
+}
 7) Ребутнуть все устройства
 8) Написать на бумажке, что пароль от винды P@ssw0rdt
 9) Для Anna Gray поменял пароль на P@ssw0rd оставить на столе
