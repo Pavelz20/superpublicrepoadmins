@@ -6,3 +6,12 @@ LDAP server signing requirements Enf... - Disable
 Audit NTLM Incoming NTLM Tra... - Disable
 Audit NTLM authetication - Disable
 Incoming NTLM traffic - Allow All 
+
+#превоначлаьная настройка
+ip + gw
+hosts
+resolve.conf (при вводе в домен или превращении в резервыный контроллер должен быть ip cr-dc)
+90-proxy
+sources.list sources.list.d
+preferences
+
